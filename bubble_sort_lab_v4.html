@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble Sort Lab V4｜冒泡排序法互動實驗室</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dce1ea;
+      --accent:#4f46e5;
+      --accent-soft:#eef2ff;
+      --good:#11845f;
+      --good-soft:#eaf8f2;
+      --warn:#9a6700;
+      --warn-soft:#fff7df;
+      --danger:#b53a36;
+      --danger-soft:#fff0ef;
+      --shadow:0 14px 36px rgba(31,41,55,.08);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%,rgba(79,70,229,.08),transparent 28rem),
+        linear-gradient(180deg,#fbfcff 0%,var(--bg) 60%);
+      min-height:100vh;
+    }
+
+    button,select{font:inherit}
+    button:focus-visible,select:focus-visible,.weight:focus-visible,summary:focus-visible{
+      outline:3px solid rgba(79,70,229,.25);
+      outline-offset:3px;
+    }
+
+    .app{
+      width:min(1160px,calc(100% - 24px));
+      margin:0 auto;
+      padding:26px 0 56px;
+    }
+
+    .hero{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:20px;
+      margin-bottom:18px;
+    }
+
+    .eyebrow{
+      font-size:.8rem;
+      font-weight:900;
+      letter-spacing:.09em;
+      color:var(--accent);
+      text-transform:uppercase;
+      margin-bottom:7px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(2rem,4vw,3.35rem);
+      line-height:1.04;
+      letter-spacing:-.045em;
+    }
+
+    .subtitle{
+      max-width:760px;
+      margin:11px 0 0;
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      min-height:44px;
+      border:0;
+      border-radius:14px;
+      padding:10px 15px;
+      cursor:pointer;
+      font-weight:850;
+      transition:transform .16s ease,opacity .16s ease,background .16s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-soft{background:var(--accent-soft);color:#3730a3}
+    .btn-neutral{background:#eef1f5;color:#374151}
+    .btn-good{background:var(--good-soft);color:#087653}
+
+    .modebar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      padding:12px 14px;
+      border-radius:18px;
+      box-shadow:0 8px 24px rgba(31,41,55,.05);
+    }
+
+    .mode-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .mode-left label{font-weight:900}
+    .mode-left select{
+      min-height:44px;
+      padding:8px 38px 8px 12px;
+      border:1px solid #cfd6e2;
+      background:#fff;
+      border-radius:12px;
+      color:var(--text);
+      font-weight:800;
+    }
+
+    .mode-hint{
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.45;
+    }
+
+    .observe-control{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      padding-left:10px;
+      border-left:1px solid var(--line);
+    }
+    .observe-control label{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .observe-switch{
+      appearance:none;
+      width:48px;
+      height:27px;
+      border:0;
+      border-radius:999px;
+      background:#d7dce5;
+      position:relative;
+      cursor:pointer;
+      transition:background .2s ease;
+      flex:none;
+    }
+    .observe-switch::after{
+      content:"";
+      position:absolute;
+      width:21px;
+      height:21px;
+      top:3px;
+      left:3px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 2px 7px rgba(31,41,55,.22);
+      transition:transform .2s ease;
+    }
+    .observe-switch:checked{background:var(--accent)}
+    .observe-switch:checked::after{transform:translateX(21px)}
+
+    .observe-badge{
+      display:none;
+      align-items:center;
+      min-height:34px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#eef8f4;
+      border:1px solid #cde8db;
+      color:#176247;
+      font-size:.84rem;
+      font-weight:900;
+    }
+    .observe-badge.show{display:inline-flex}
+
+    .weight.observing{
+      background:linear-gradient(180deg,#fff,#f4fbf7);
+      border-color:#add8c4;
+    }
+    .weight.observing .unknown{
+      color:#126147;
+      font-size:.96rem;
+      font-weight:950;
+    }
+
+    .bubble-motion{
+      position:fixed;
+      z-index:9998;
+      pointer-events:none;
+      min-width:90px;
+      height:46px;
+      padding:0 14px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      background:rgba(79,70,229,.94);
+      color:#fff;
+      box-shadow:0 12px 28px rgba(79,70,229,.24);
+      font-weight:950;
+      white-space:nowrap;
+      transform:translate(-50%,-50%);
+      transition:left .5s cubic-bezier(.2,.8,.2,1),
+                 top .5s cubic-bezier(.2,.8,.2,1),
+                 opacity .5s ease,
+                 transform .5s ease;
+    }
+    .bubble-motion::before{
+      content:"◯";
+      font-size:1.15rem;
+    }
+    .bubble-motion.fly{
+      opacity:.12;
+      transform:translate(-50%,-50%) scale(1.18);
+    }
+
+    .bubble-lock{
+      position:absolute;
+      z-index:10;
+      pointer-events:none;
+      padding:8px 11px;
+      border-radius:999px;
+      background:#e9f8f1;
+      border:1px solid #c7e8d8;
+      color:#126147;
+      font-size:.78rem;
+      font-weight:950;
+      white-space:nowrap;
+      animation:bubbleLockPop 1.2s ease-out both;
+    }
+    @keyframes bubbleLockPop{
+      0%{opacity:0;transform:translate(-50%,10px) scale(.82)}
+      35%{opacity:1;transform:translate(-50%,-5px) scale(1.04)}
+      100%{opacity:0;transform:translate(-50%,-30px) scale(1)}
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);
+      gap:18px;
+      align-items:start;
+    }
+
+    .card{
+      background:rgba(255,255,255,.95);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .main-card{padding:21px}
+    .side-card{padding:19px;position:sticky;top:14px}
+
+    .statusbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      padding-bottom:15px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .task strong{
+      display:block;
+      font-size:1.04rem;
+      margin-bottom:4px;
+    }
+
+    .task span{
+      color:var(--muted);
+      line-height:1.5;
+      font-size:.94rem;
+    }
+
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      min-height:34px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#f4f6f9;
+      border:1px solid #e5e8ee;
+      color:#4b5563;
+      font-size:.86rem;
+      font-weight:800;
+    }
+
+    .instruction{
+      margin:16px 0 12px;
+      padding:13px 14px;
+      border:1px solid #e6e9f0;
+      border-radius:14px;
+      background:#f8f9fc;
+      line-height:1.55;
+      font-weight:700;
+    }
+    .instruction.success{
+      background:var(--good-soft);
+      border-color:#cfeadd;
+      color:#176247;
+    }
+    .instruction.warn{
+      background:var(--warn-soft);
+      border-color:#f0dfaa;
+      color:#795306;
+    }
+
+    .order-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:16px 0 12px;
+    }
+
+    .order-head strong{font-size:1.03rem}
+    .small-help{color:var(--muted);font-size:.88rem}
+
+    .weights{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:11px;
+      align-items:end;
+      margin-bottom:18px;
+    }
+
+    .weight{
+      position:relative;
+      min-width:0;
+      min-height:125px;
+      border:2px solid #cfd5df;
+      border-radius:25px 25px 15px 15px;
+      background:linear-gradient(180deg,#fff,#edf1f5);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+      cursor:grab;
+      touch-action:none;
+      transition:
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease,
+        opacity .2s ease;
+    }
+
+    .weight:active{cursor:grabbing}
+
+    .weight::before{
+      content:"";
+      position:absolute;
+      top:-18px;
+      width:45%;
+      min-width:34px;
+      max-width:50px;
+      height:26px;
+      border:8px solid #b9c1cd;
+      border-bottom:0;
+      border-radius:18px 18px 0 0;
+      pointer-events:none;
+    }
+
+    .weight .letter{
+      font-size:clamp(1.7rem,4vw,2.35rem);
+      line-height:1;
+      font-weight:950;
+      letter-spacing:-.05em;
+    }
+
+    .weight .unknown{
+      margin-top:10px;
+      font-size:.84rem;
+      color:var(--muted);
+      font-weight:800;
+      text-align:center;
+    }
+
+    .weight.drag-source{
+      opacity:.45;
+      transform:scale(.97);
+    }
+
+    .weight.drop-target{
+      border-color:var(--accent);
+      box-shadow:0 0 0 5px rgba(79,70,229,.11);
+      background:linear-gradient(180deg,#fff,#f0f1ff);
+    }
+
+    .weight.tutorial-active{
+      border-color:var(--accent);
+      box-shadow:0 0 0 5px rgba(79,70,229,.08);
+    }
+
+    .weight.tutorial-muted{
+      opacity:.46;
+      cursor:not-allowed;
+    }
+
+    .weight.locked{
+      opacity:.48;
+      border-style:dashed;
+    }
+
+    .weight.locked::after{
+      content:"✓ 已定位";
+      position:absolute;
+      bottom:-27px;
+      color:var(--good);
+      font-size:.74rem;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .swap-hint{
+      padding:11px 13px;
+      border-radius:13px;
+      background:#f3f4f7;
+      color:#525b68;
+      font-size:.9rem;
+      line-height:1.5;
+      margin-bottom:18px;
+    }
+
+    .lab{
+      margin-top:26px;
+      padding:18px;
+      border-radius:20px;
+      border:1px solid #e2e7ee;
+      background:linear-gradient(180deg,#fafbfd,#f1f4f8);
+    }
+
+    .lab-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:4px;
+    }
+
+    .lab-head strong{font-size:1.02rem}
+    .lab-head span{color:var(--muted);font-size:.86rem}
+
+    .balance{
+      position:relative;
+      height:240px;
+      max-width:690px;
+      margin:0 auto;
+    }
+
+    .beam{
+      position:absolute;
+      left:50%;
+      top:57px;
+      width:min(540px,82%);
+      height:8px;
+      border-radius:999px;
+      background:#4f5867;
+      transform:translateX(-50%) rotate(0deg);
+      transform-origin:center;
+      transition:transform .5s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .stand{
+      position:absolute;
+      left:50%;
+      top:59px;
+      width:18px;
+      height:129px;
+      border-radius:9px;
+      background:#5d6675;
+      transform:translateX(-50%);
+    }
+
+    .stand::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:-15px;
+      width:120px;
+      height:18px;
+      border-radius:999px 999px 10px 10px;
+      background:#5d6675;
+      transform:translateX(-50%);
+    }
+
+    .pivot{
+      position:absolute;
+      left:50%;
+      top:42px;
+      width:31px;
+      height:31px;
+      transform:translateX(-50%);
+      border-radius:50%;
+      background:#343c49;
+      z-index:4;
+    }
+
+    .pan{
+      position:absolute;
+      top:98px;
+      width:195px;
+      min-height:94px;
+      border:2px dashed #b6bfcc;
+      background:rgba(255,255,255,.82);
+      border-radius:18px 18px 48px 48px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:9px;
+      text-align:center;
+      transition:
+        transform .5s ease,
+        border-color .18s ease,
+        background .18s ease,
+        box-shadow .18s ease;
+    }
+
+    .pan-left{left:3%}
+    .pan-right{right:3%}
+
+    .pan.drop-target{
+      border-color:var(--accent);
+      background:#f3f2ff;
+      box-shadow:0 0 0 5px rgba(79,70,229,.10);
+    }
+
+    .pan .pan-label{
+      font-size:.75rem;
+      font-weight:900;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+
+    .pan .pan-letter{
+      font-size:1.75rem;
+      font-weight:950;
+      line-height:1.2;
+      margin-top:2px;
+    }
+
+    .pan .pan-empty{
+      color:#969fac;
+      font-size:.84rem;
+      font-weight:750;
+      margin-top:4px;
+    }
+
+    .balance.left-heavy .beam{transform:translateX(-50%) rotate(-6deg)}
+    .balance.left-heavy .pan-left{transform:translateY(22px)}
+    .balance.left-heavy .pan-right{transform:translateY(-22px)}
+    .balance.right-heavy .beam{transform:translateX(-50%) rotate(6deg)}
+    .balance.right-heavy .pan-left{transform:translateY(-22px)}
+    .balance.right-heavy .pan-right{transform:translateY(22px)}
+
+    .compare-result{
+      min-height:55px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      line-height:1.5;
+      font-weight:900;
+      padding:4px 10px;
+    }
+
+    .lab-actions{
+      display:flex;
+      gap:9px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top:4px;
+    }
+
+    .tutorial-action{
+      display:none;
+    }
+    .tutorial-action.show{display:inline-flex}
+
+    .confirm-area{
+      margin-top:18px;
+      padding-top:18px;
+      border-top:1px solid var(--line);
+      display:flex;
+      gap:11px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .confirm-copy{
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.5;
+      max-width:600px;
+    }
+
+    .result-box{
+      display:none;
+      margin-top:16px;
+      padding:17px;
+      border-radius:17px;
+      border:1px solid;
+    }
+    .result-box.show{display:block}
+    .result-box.good{
+      background:var(--good-soft);
+      border-color:#c8e9da;
+      color:#145f45;
+    }
+    .result-box.bad{
+      background:var(--danger-soft);
+      border-color:#f1cfcc;
+      color:#872f2c;
+    }
+
+    .result-box h2{
+      margin:0 0 7px;
+      font-size:1.25rem;
+    }
+    .result-box p{margin:0;line-height:1.55}
+
+    .reveal{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .reveal-chip{
+      min-width:84px;
+      padding:9px 11px;
+      border-radius:12px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.09);
+      text-align:center;
+      font-weight:900;
+    }
+    .reveal-chip span{
+      display:block;
+      color:var(--muted);
+      font-size:.82rem;
+      margin-top:2px;
+    }
+
+    .side-title{
+      margin:0 0 13px;
+      font-size:1.05rem;
+      font-weight:950;
+    }
+
+    .free-guide,.tutorial-guide{
+      display:grid;
+      gap:10px;
+    }
+
+    .guide-line{
+      display:grid;
+      grid-template-columns:34px 1fr;
+      gap:10px;
+      align-items:start;
+      padding:9px 0;
+      border-bottom:1px solid #eef0f4;
+    }
+
+    .guide-line:last-child{border-bottom:0}
+    .guide-icon{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:#eff2f6;
+      font-weight:950;
+      color:#4b5563;
+    }
+    .guide-line.active .guide-icon{
+      background:var(--accent);
+      color:#fff;
+    }
+    .guide-line strong{display:block;margin-bottom:2px}
+    .guide-line span{display:block;color:var(--muted);font-size:.88rem;line-height:1.45}
+
+    .tip{
+      margin-top:14px;
+      padding:12px 13px;
+      border:1px solid #eee0b0;
+      border-radius:13px;
+      background:#fff9e9;
+      color:#725009;
+      font-size:.88rem;
+      line-height:1.55;
+    }
+
+    details{
+      border-top:1px solid var(--line);
+      margin-top:16px;
+      padding-top:13px;
+    }
+    summary{font-weight:900;cursor:pointer}
+    .history{
+      margin:10px 0 0;
+      padding-left:20px;
+      max-height:250px;
+      overflow:auto;
+      color:#4b5563;
+      font-size:.88rem;
+      line-height:1.6;
+    }
+
+    .drag-ghost{
+      position:fixed;
+      z-index:9999;
+      pointer-events:none;
+      width:82px;
+      height:92px;
+      border:2px solid var(--accent);
+      border-radius:20px 20px 12px 12px;
+      background:linear-gradient(180deg,#fff,#eef0ff);
+      box-shadow:0 16px 32px rgba(31,41,55,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:2rem;
+      font-weight:950;
+      transform:translate(-50%,-50%) rotate(2deg);
+    }
+    .drag-ghost::before{
+      content:"";
+      position:absolute;
+      top:-13px;
+      width:38px;
+      height:18px;
+      border:6px solid #aeb8c7;
+      border-bottom:0;
+      border-radius:14px 14px 0 0;
+    }
+
+    /* V3：中央結果動畫 */
+    .result-popover{
+      position:fixed;
+      inset:0;
+      z-index:10000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(25,31,42,.30);
+      backdrop-filter:blur(3px);
+    }
+
+    .result-popover.show{
+      display:flex;
+      animation:popoverFade .18s ease-out both;
+    }
+
+    .result-pop-card{
+      position:relative;
+      width:min(440px,100%);
+      border-radius:26px;
+      padding:28px 24px 22px;
+      background:#fff;
+      border:1px solid #e1e6ee;
+      box-shadow:0 28px 70px rgba(31,41,55,.24);
+      text-align:center;
+      overflow:hidden;
+      animation:popoverBounce .48s cubic-bezier(.18,.9,.24,1.12) both;
+    }
+
+    .result-pop-card.success{
+      background:linear-gradient(180deg,#ffffff,#eefaf4);
+      border-color:#c7e8d8;
+    }
+
+    .result-pop-card.try-again{
+      background:linear-gradient(180deg,#ffffff,#fff9e9);
+      border-color:#eedda9;
+    }
+
+    .result-pop-icon{
+      width:74px;
+      height:74px;
+      margin:0 auto 13px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-size:2.3rem;
+      background:#f1f3f7;
+      transform-origin:center;
+      animation:iconPop .62s ease-out .08s both;
+    }
+
+    .result-pop-card.success .result-pop-icon{
+      background:#e5f7ef;
+    }
+
+    .result-pop-card.try-again .result-pop-icon{
+      background:#fff2c9;
+    }
+
+    .result-pop-title{
+      margin:0;
+      font-size:1.55rem;
+      font-weight:950;
+      letter-spacing:-.02em;
+    }
+
+    .result-pop-text{
+      margin:9px auto 0;
+      max-width:355px;
+      color:#5d6674;
+      line-height:1.6;
+      font-size:.96rem;
+    }
+
+    .result-pop-hint{
+      margin:14px 0 0;
+      padding:12px 13px;
+      border-radius:14px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(0,0,0,.07);
+      color:#555e6b;
+      line-height:1.55;
+      font-size:.9rem;
+      font-weight:750;
+    }
+
+    .result-pop-actions{
+      display:flex;
+      justify-content:center;
+      gap:9px;
+      flex-wrap:wrap;
+      margin-top:18px;
+    }
+
+    .celebration-bubble{
+      position:absolute;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:var(--accent);
+      opacity:.16;
+      animation:bubbleFloat 1.45s ease-out infinite;
+      pointer-events:none;
+    }
+
+    .celebration-bubble.b1{left:8%;bottom:-14px;animation-delay:0s}
+    .celebration-bubble.b2{left:23%;bottom:-16px;animation-delay:.18s;width:17px;height:17px}
+    .celebration-bubble.b3{right:17%;bottom:-12px;animation-delay:.33s;width:10px;height:10px}
+    .celebration-bubble.b4{right:5%;bottom:-18px;animation-delay:.51s;width:20px;height:20px}
+    .celebration-bubble.b5{left:48%;bottom:-15px;animation-delay:.72s;width:14px;height:14px}
+
+    @keyframes popoverFade{
+      from{opacity:0}
+      to{opacity:1}
+    }
+
+    @keyframes popoverBounce{
+      0%{opacity:0;transform:translateY(22px) scale(.88)}
+      62%{opacity:1;transform:translateY(-4px) scale(1.025)}
+      100%{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    @keyframes iconPop{
+      0%{opacity:0;transform:scale(.45) rotate(-8deg)}
+      65%{opacity:1;transform:scale(1.12) rotate(3deg)}
+      100%{opacity:1;transform:scale(1) rotate(0)}
+    }
+
+    @keyframes bubbleFloat{
+      0%{transform:translateY(0) scale(.7);opacity:0}
+      20%{opacity:.18}
+      100%{transform:translateY(-165px) scale(1.25);opacity:0}
+    }
+
+    .shake{animation:shake .28s ease-in-out 0s 2}
+    @keyframes shake{
+      0%,100%{transform:translateX(0)}
+      50%{transform:translateX(5px)}
+    }
+
+    @media(max-width:880px){
+      .hero{flex-direction:column}
+      .hero-actions{justify-content:flex-start}
+      .layout{grid-template-columns:1fr}
+      .side-card{position:static}
+    }
+
+    @media(max-width:620px){
+      .observe-control{
+        width:100%;
+        padding-left:0;
+        padding-top:10px;
+        border-left:0;
+        border-top:1px solid var(--line);
+      }
+      .app{width:min(100% - 16px,1160px);padding-top:15px}
+      .main-card,.side-card{padding:15px}
+      .weights{gap:6px}
+      .weight{min-height:102px;border-radius:19px 19px 12px 12px}
+      .weight::before{top:-14px;height:21px;border-width:6px}
+      .weight .letter{font-size:1.55rem}
+      .weight .unknown{font-size:.68rem;margin-top:7px}
+      .pan{width:137px;min-height:84px}
+      .pan-left{left:0}
+      .pan-right{right:0}
+      .beam{width:75%}
+      .balance{height:228px}
+      .confirm-area{align-items:stretch}
+      .confirm-area .btn{width:100%}
+    }
+
+    @media(max-width:390px){
+      .weight{min-height:94px}
+      .weight .unknown{font-size:.62rem}
+      .pan{width:122px}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation-duration:.01ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:.01ms!important;
+        scroll-behavior:auto!important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<main class="app">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">⚖ Bubble Sort Lab · V4</div>
+      <h1>冒泡排序法互動實驗室</h1>
+      <p class="subtitle">
+        每局都會由 A、B、C、D、E 的次序開始，但五個法碼背後會隨機藏著 1–100g 的不同重量。
+        把法碼拖到天秤上比較，再把一個法碼直接拖到另一個法碼上交換位置。
+        你亦可以隨時開啟「觀察模式」查看重量，在教學模式中清楚觀察較重元素一步一步向右「冒」。
+      </p>
+    </div>
+    <div class="hero-actions">
+      <button class="btn btn-neutral" id="restartBtn" type="button">↻ 重新挑戰</button>
+    </div>
+  </header>
+
+  <section class="modebar" aria-label="模式選擇">
+    <div class="mode-left">
+      <label for="modeSelect">模式</label>
+      <select id="modeSelect">
+        <option value="free">自由探索模式</option>
+        <option value="tutorial">Bubble Sort 教學模式</option>
+      </select>
+
+      <div class="observe-control">
+        <label for="observeToggle">
+          <input class="observe-switch" id="observeToggle" type="checkbox" />
+          👁 觀察模式
+        </label>
+        <span class="mode-hint" id="observeHint">關閉：重量保持隱藏</span>
+      </div>
+    </div>
+    <div class="mode-hint" id="modeHint">你可以自由比較任何兩個法碼，也可以自由交換任何兩個位置。</div>
+  </section>
+
+  <section class="layout">
+    <div class="card main-card">
+      <div class="statusbar">
+        <div class="task">
+          <strong>任務：由輕 → 重排列</strong>
+          <span id="taskSub">用天秤找出重量關係，再自行完成排序。</span>
+        </div>
+        <div class="stats">
+          <span class="pill" id="roundPill" hidden>第 1 / 4 輪</span>
+          <span class="pill" id="stepPill" hidden>比較 1 / 4</span>
+          <span class="pill" id="compareCount">比較 0 次</span>
+          <span class="pill" id="swapCount">交換 0 次</span>
+          <span class="observe-badge" id="observeBadge">👁 重量可見</span>
+        </div>
+      </div>
+
+      <div class="instruction" id="instruction" aria-live="polite">
+        每局由 A → B → C → D → E 開始。拖到天秤可比較；拖到另一個法碼上可交換位置。
+      </div>
+
+      <div class="order-head">
+        <strong>目前排列</strong>
+        <span class="small-help" id="pairHint">任何兩個法碼都可以比較或交換</span>
+      </div>
+
+      <div class="weights" id="weightsRow" aria-label="法碼目前排列"></div>
+
+      <div class="swap-hint" id="swapHint">
+        <strong>交換方法：</strong>直接把一個法碼拖到另一個法碼上，兩者的位置便會交換。
+      </div>
+
+      <section class="lab">
+        <div class="lab-head">
+          <strong>天秤比較區</strong>
+          <span>每次只會比較兩個法碼，不會顯示實際重量</span>
+        </div>
+
+        <div class="balance" id="balance">
+          <div class="beam"></div>
+          <div class="stand"></div>
+          <div class="pivot"></div>
+
+          <div class="pan pan-left" id="leftPan" data-drop="left">
+            <div class="pan-label">左盤</div>
+            <div class="pan-letter" id="leftLetter"></div>
+            <div class="pan-empty" id="leftEmpty">拖一個法碼到這裡</div>
+          </div>
+
+          <div class="pan pan-right" id="rightPan" data-drop="right">
+            <div class="pan-label">右盤</div>
+            <div class="pan-letter" id="rightLetter"></div>
+            <div class="pan-empty" id="rightEmpty">拖一個法碼到這裡</div>
+          </div>
+        </div>
+
+        <div class="compare-result" id="compareResult" aria-live="polite">
+          等待比較……
+        </div>
+
+        <div class="lab-actions">
+          <button class="btn btn-neutral" id="clearScaleBtn" type="button">清空天秤</button>
+          <button class="btn btn-soft tutorial-action" id="keepNextBtn" type="button">保持次序，下一步</button>
+        </div>
+      </section>
+
+      <div class="confirm-area">
+        <div class="confirm-copy" id="confirmCopy">
+          覺得已經排好？按「確認排序」後，系統才會告訴你是否正確。
+        </div>
+        <button class="btn btn-primary" id="confirmBtn" type="button">確認排序</button>
+      </div>
+
+      <div class="result-box" id="resultBox">
+        <h2 id="resultTitle"></h2>
+        <p id="resultText"></p>
+        <div class="reveal" id="revealRow"></div>
+      </div>
+    </div>
+
+    <aside class="card side-card">
+      <h2 class="side-title" id="sideTitle">自由探索玩法</h2>
+
+      <div class="free-guide" id="freeGuide">
+        <div class="guide-line">
+          <div class="guide-icon">1</div>
+          <div>
+            <strong>自由比較</strong>
+            <span>把任何兩個法碼分別拖到左右天秤。</span>
+          </div>
+        </div>
+        <div class="guide-line">
+          <div class="guide-icon">2</div>
+          <div>
+            <strong>記住大小關係</strong>
+            <span>天秤只告訴你誰較重，真正重量仍然保密。</span>
+          </div>
+        </div>
+        <div class="guide-line">
+          <div class="guide-icon">3</div>
+          <div>
+            <strong>自由交換</strong>
+            <span>拖一個法碼到另一個法碼上，直接交換兩者位置。</span>
+          </div>
+        </div>
+        <div class="guide-line">
+          <div class="guide-icon">4</div>
+          <div>
+            <strong>最後確認</strong>
+            <span>你決定何時完成；按確認後才會知道答案。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tutorial-guide" id="tutorialGuide" hidden>
+        <div class="guide-line active" data-tstep="compare">
+          <div class="guide-icon">1</div>
+          <div>
+            <strong>比較相鄰兩項</strong>
+            <span>只拖被框起的兩個法碼到天秤。</span>
+          </div>
+        </div>
+        <div class="guide-line" data-tstep="judge">
+          <div class="guide-icon">2</div>
+          <div>
+            <strong>判斷次序</strong>
+            <span>由輕至重：如果左邊較重，就應交換。</span>
+          </div>
+        </div>
+        <div class="guide-line" data-tstep="swap">
+          <div class="guide-icon">3</div>
+          <div>
+            <strong>交換或保持</strong>
+            <span>需要交換就直接拖到對方法碼；否則按「保持次序」。</span>
+          </div>
+        </div>
+        <div class="guide-line" data-tstep="advance">
+          <div class="guide-icon">4</div>
+          <div>
+            <strong>向右移動</strong>
+            <span>完成一對後，再比較下一對相鄰法碼。開啟觀察模式時，可看到較重元素一步一步向右「冒」。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip" id="tipBox">
+        小提示：你不需要知道實際有幾多克，只要知道兩件法碼之間誰較重，就已經有足夠資料進行排序。
+      </div>
+
+      <details>
+        <summary>查看比較／交換紀錄</summary>
+        <ol class="history" id="historyList">
+          <li>尚未有紀錄。</li>
+        </ol>
+      </details>
+    </aside>
+  </section>
+
+  <div class="result-popover" id="resultPopover" role="dialog" aria-modal="true" aria-labelledby="resultPopTitle">
+    <div class="result-pop-card" id="resultPopCard">
+      <span class="celebration-bubble b1"></span>
+      <span class="celebration-bubble b2"></span>
+      <span class="celebration-bubble b3"></span>
+      <span class="celebration-bubble b4"></span>
+      <span class="celebration-bubble b5"></span>
+
+      <div class="result-pop-icon" id="resultPopIcon">💡</div>
+      <h2 class="result-pop-title" id="resultPopTitle">繼續努力！</h2>
+      <p class="result-pop-text" id="resultPopText"></p>
+      <div class="result-pop-hint" id="resultPopHint"></div>
+      <div class="result-pop-actions">
+        <button class="btn btn-primary" id="resultPopClose" type="button">繼續挑戰</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(() => {
+  const labels = ["A","B","C","D","E"];
+  const total = labels.length;
+
+  const modeSelect = document.getElementById("modeSelect");
+  const modeHint = document.getElementById("modeHint");
+  const observeToggle = document.getElementById("observeToggle");
+  const observeHint = document.getElementById("observeHint");
+  const observeBadge = document.getElementById("observeBadge");
+  const taskSub = document.getElementById("taskSub");
+  const instruction = document.getElementById("instruction");
+  const pairHint = document.getElementById("pairHint");
+  const weightsRow = document.getElementById("weightsRow");
+  const balance = document.getElementById("balance");
+  const leftPan = document.getElementById("leftPan");
+  const rightPan = document.getElementById("rightPan");
+  const leftLetter = document.getElementById("leftLetter");
+  const rightLetter = document.getElementById("rightLetter");
+  const leftEmpty = document.getElementById("leftEmpty");
+  const rightEmpty = document.getElementById("rightEmpty");
+  const compareResult = document.getElementById("compareResult");
+  const clearScaleBtn = document.getElementById("clearScaleBtn");
+  const keepNextBtn = document.getElementById("keepNextBtn");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const confirmCopy = document.getElementById("confirmCopy");
+  const resultBox = document.getElementById("resultBox");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultText = document.getElementById("resultText");
+  const revealRow = document.getElementById("revealRow");
+  const compareCountEl = document.getElementById("compareCount");
+  const swapCountEl = document.getElementById("swapCount");
+  const roundPill = document.getElementById("roundPill");
+  const stepPill = document.getElementById("stepPill");
+  const restartBtn = document.getElementById("restartBtn");
+  const historyList = document.getElementById("historyList");
+  const sideTitle = document.getElementById("sideTitle");
+  const freeGuide = document.getElementById("freeGuide");
+  const tutorialGuide = document.getElementById("tutorialGuide");
+  const tipBox = document.getElementById("tipBox");
+
+  const resultPopover = document.getElementById("resultPopover");
+  const resultPopCard = document.getElementById("resultPopCard");
+  const resultPopIcon = document.getElementById("resultPopIcon");
+  const resultPopTitle = document.getElementById("resultPopTitle");
+  const resultPopText = document.getElementById("resultPopText");
+  const resultPopHint = document.getElementById("resultPopHint");
+  const resultPopClose = document.getElementById("resultPopClose");
+
+  let mode = "free";
+  let observeMode = false;
+  let items = [];
+  let comparisonCount = 0;
+  let swapCount = 0;
+  let history = [];
+  let leftId = null;
+  let rightId = null;
+  let revealed = false;
+  let completed = false;
+
+  // 教學模式狀態
+  let currentPass = 0;
+  let compareIndex = 0;
+  let tutorialCompared = false;
+  let tutorialState = "compare"; // compare | judge | swap | advance | done
+
+  // 自製 Pointer Drag 狀態，支援滑鼠、觸控及 iPad
+  let drag = null;
+
+  function makeDistinctWeights(n){
+    const set = new Set();
+    while(set.size < n){
+      set.add(Math.floor(Math.random() * 100) + 1);
+    }
+    return [...set];
+  }
+
+  function shuffle(arr){
+    const a = [...arr];
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function isSorted(arr = items){
+    return arr.every((item,i)=>i===0 || arr[i-1].weight <= item.weight);
+  }
+
+  function newChallenge(){
+    let ws;
+    let next;
+
+    // 每局必定由 A → B → C → D → E 開始，
+    // 但每個法碼背後的重量會重新隨機，而且五個重量不重複。
+    // 如果剛好一開始已經由輕至重，便重新抽重量，避免學生毋須操作便完成。
+    do{
+      ws = makeDistinctWeights(total);
+      next = labels.map((id,i)=>({id,weight:ws[i]}));
+    }while(isSorted(next));
+
+    items = next;
+    comparisonCount = 0;
+    swapCount = 0;
+    history = [];
+    leftId = null;
+    rightId = null;
+    revealed = false;
+    completed = false;
+
+    currentPass = 0;
+    compareIndex = 0;
+    tutorialCompared = false;
+    tutorialState = "compare";
+
+    clearResult();
+    clearScale(false);
+    renderAll();
+  }
+
+  function renderAll(){
+    renderMode();
+    renderWeights();
+    renderStats();
+    renderHistory();
+    updateScaleUI();
+    updateInstruction();
+    updateTutorialGuide();
+  }
+
+  function renderMode(){
+    const tutorial = mode === "tutorial";
+
+    modeHint.textContent = tutorial
+      ? "系統只會讓你比較當前的一對相鄰法碼，逐步完成 Bubble Sort。"
+      : "你可以自由比較任何兩個法碼，也可以自由交換任何兩個位置。";
+
+    taskSub.textContent = tutorial
+      ? "跟著相鄰比較 → 判斷 → 交換／保持，逐輪完成 Bubble Sort。"
+      : "用天秤找出重量關係，再自行完成排序。";
+
+    pairHint.textContent = tutorial
+      ? currentPairText()
+      : "任何兩個法碼都可以比較或交換";
+
+    roundPill.hidden = !tutorial;
+    stepPill.hidden = !tutorial;
+    keepNextBtn.classList.toggle("show", tutorial && tutorialCompared && !completed);
+
+    sideTitle.textContent = tutorial ? "Bubble Sort 教學流程" : "自由探索玩法";
+    freeGuide.hidden = tutorial;
+    tutorialGuide.hidden = !tutorial;
+
+    observeHint.textContent = observeMode
+      ? "開啟：直接看到每個法碼重量"
+      : "關閉：重量保持隱藏";
+    observeBadge.classList.toggle("show",observeMode);
+
+    if(tutorial && observeMode){
+      tipBox.textContent = "👁 觀察模式：留意每次相鄰比較後，較重的元素如次序錯誤，就會向右交換一格；一輪又一輪，就像氣泡逐步冒到右邊。";
+    }else if(tutorial){
+      tipBox.textContent = "Bubble Sort 的重點：每次比較相鄰兩項。完成一輪後，當輪最大的元素會逐步移到最右邊。可開啟「觀察模式」直接看到重量。";
+    }else if(observeMode){
+      tipBox.textContent = "👁 觀察模式：所有重量已顯示。你可先觀察排序關係，再關閉觀察模式挑戰自己。";
+    }else{
+      tipBox.textContent = "小提示：你不需要知道實際有幾多克，只要知道兩件法碼之間誰較重，就已經有足夠資料進行排序。";
+    }
+  }
+
+  function tutorialActiveEnd(){
+    return total - 1 - currentPass;
+  }
+
+  function tutorialLockedStart(){
+    return total - currentPass;
+  }
+
+  function currentPair(){
+    if(mode !== "tutorial" || currentPass >= total-1) return [];
+    return [items[compareIndex],items[compareIndex+1]];
+  }
+
+  function currentPairText(){
+    const pair = currentPair();
+    if(pair.length < 2) return "教學流程完成";
+    return `現在比較：${pair[0].id} 和 ${pair[1].id}`;
+  }
+
+  function currentPairIds(){
+    return new Set(currentPair().map(x=>x.id));
+  }
+
+  function renderWeights(){
+    weightsRow.innerHTML = "";
+    const pairIds = currentPairIds();
+    const lockFrom = tutorialLockedStart();
+
+    items.forEach((item,index)=>{
+      const el = document.createElement("div");
+      el.className = "weight";
+      el.tabIndex = 0;
+      el.dataset.id = item.id;
+      el.setAttribute("role","button");
+      el.setAttribute(
+        "aria-label",
+        (revealed || observeMode) ? `法碼 ${item.id}，重量 ${item.weight} 克` : `法碼 ${item.id}，重量未知，可拖曳`
+      );
+
+      if(mode === "tutorial" && !completed){
+        if(pairIds.has(item.id) && index <= tutorialActiveEnd()){
+          el.classList.add("tutorial-active");
+        }else{
+          el.classList.add("tutorial-muted");
+        }
+
+        if(currentPass > 0 && index >= lockFrom){
+          el.classList.add("locked");
+        }
+      }
+
+      if(observeMode) el.classList.add("observing");
+
+      el.innerHTML = `
+        <div class="letter">${item.id}</div>
+        <div class="unknown">${(revealed || observeMode) ? item.weight + "g" : "重量未知"}</div>
+      `;
+
+      el.addEventListener("pointerdown", startDrag);
+      el.addEventListener("keydown", (e)=>{
+        // 鍵盤使用者可按 Enter 選擇，再按另一件交換（自由模式）
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          keyboardSelect(item.id,el);
+        }
+      });
+
+      weightsRow.appendChild(el);
+    });
+  }
+
+  let keyboardSelectedId = null;
+
+  function keyboardSelect(id,el){
+    if(completed) return;
+
+    if(mode === "tutorial"){
+      showMessage("教學模式請使用拖曳完成比較或交換；如需完全自由操作，可切換到「自由探索模式」。","warn");
+      return;
+    }
+
+    if(!keyboardSelectedId){
+      keyboardSelectedId = id;
+      [...weightsRow.children].forEach(x=>x.classList.remove("drop-target"));
+      el.classList.add("drop-target");
+      showMessage(`已選擇 ${id}。再按另一個法碼可交換兩者位置。`);
+      return;
+    }
+
+    if(keyboardSelectedId === id){
+      keyboardSelectedId = null;
+      el.classList.remove("drop-target");
+      showMessage("已取消選擇。");
+      return;
+    }
+
+    const first = keyboardSelectedId;
+    keyboardSelectedId = null;
+    [...weightsRow.children].forEach(x=>x.classList.remove("drop-target"));
+    attemptSwap(first,id);
+  }
+
+  function canDragId(id){
+    if(completed) return false;
+    if(mode === "free") return true;
+    return currentPairIds().has(id);
+  }
+
+  function startDrag(e){
+    const id = e.currentTarget.dataset.id;
+    if(!canDragId(id)){
+      showMessage("教學模式只可以操作目前被框起的兩個相鄰法碼。","warn");
+      return;
+    }
+
+    const source = e.currentTarget;
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    drag = {
+      pointerId:e.pointerId,
+      id,
+      source,
+      startX,
+      startY,
+      active:false,
+      ghost:null,
+      target:null
+    };
+
+    source.setPointerCapture?.(e.pointerId);
+    source.addEventListener("pointermove", onDragMove);
+    source.addEventListener("pointerup", endDrag);
+    source.addEventListener("pointercancel", cancelDrag);
+  }
+
+  function onDragMove(e){
+    if(!drag || e.pointerId !== drag.pointerId) return;
+
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+
+    if(!drag.active && Math.hypot(dx,dy) < 7) return;
+
+    if(!drag.active){
+      drag.active = true;
+      drag.source.classList.add("drag-source");
+
+      const ghost = document.createElement("div");
+      ghost.className = "drag-ghost";
+      ghost.textContent = drag.id;
+      document.body.appendChild(ghost);
+      drag.ghost = ghost;
+    }
+
+    e.preventDefault();
+    positionGhost(e.clientX,e.clientY);
+    highlightTargetAt(e.clientX,e.clientY);
+  }
+
+  function positionGhost(x,y){
+    if(!drag?.ghost) return;
+    drag.ghost.style.left = `${x}px`;
+    drag.ghost.style.top = `${y}px`;
+  }
+
+  function validTargetFromPoint(x,y){
+    const node = document.elementFromPoint(x,y);
+    if(!node) return null;
+
+    const pan = node.closest?.(".pan");
+    if(pan) return pan;
+
+    const weight = node.closest?.(".weight");
+    if(weight && weight.dataset.id !== drag.id) return weight;
+
+    return null;
+  }
+
+  function highlightTargetAt(x,y){
+    clearDropHighlights();
+    const target = validTargetFromPoint(x,y);
+    drag.target = target;
+    if(target) target.classList.add("drop-target");
+  }
+
+  function clearDropHighlights(){
+    document.querySelectorAll(".drop-target").forEach(el=>el.classList.remove("drop-target"));
+  }
+
+  function endDrag(e){
+    if(!drag || e.pointerId !== drag.pointerId) return;
+
+    const current = drag;
+    cleanupDragListeners();
+
+    if(current.active){
+      const target = validTargetFromPoint(e.clientX,e.clientY);
+      if(target){
+        if(target.classList.contains("pan")){
+          placeOnPan(current.id,target.dataset.drop);
+        }else if(target.classList.contains("weight")){
+          attemptSwap(current.id,target.dataset.id);
+        }
+      }
+    }
+
+    cleanupDragVisuals(current);
+    drag = null;
+  }
+
+  function cancelDrag(){
+    if(!drag) return;
+    const current = drag;
+    cleanupDragListeners();
+    cleanupDragVisuals(current);
+    drag = null;
+  }
+
+  function cleanupDragListeners(){
+    if(!drag?.source) return;
+    drag.source.removeEventListener("pointermove",onDragMove);
+    drag.source.removeEventListener("pointerup",endDrag);
+    drag.source.removeEventListener("pointercancel",cancelDrag);
+  }
+
+  function cleanupDragVisuals(current){
+    clearDropHighlights();
+    current.source?.classList.remove("drag-source");
+    current.ghost?.remove();
+  }
+
+  function placeOnPan(id,side){
+    if(completed) return;
+
+    if(mode === "tutorial" && !currentPairIds().has(id)){
+      showMessage("教學模式只比較目前框起的兩個法碼。","warn");
+      return;
+    }
+
+    if(side === "left"){
+      if(rightId === id) rightId = null;
+      leftId = id;
+    }else{
+      if(leftId === id) leftId = null;
+      rightId = id;
+    }
+
+    updateScaleUI();
+
+    if(leftId && rightId){
+      comparePlacedItems();
+    }else{
+      compareResult.textContent = "再放另一個法碼到天秤……";
+      balance.classList.remove("left-heavy","right-heavy");
+    }
+  }
+
+  function comparePlacedItems(){
+    if(leftId === rightId) return;
+
+    const left = items.find(x=>x.id === leftId);
+    const right = items.find(x=>x.id === rightId);
+    if(!left || !right) return;
+
+    if(mode === "tutorial"){
+      const required = currentPairIds();
+      if(!required.has(leftId) || !required.has(rightId)){
+        showMessage("教學模式必須比較目前指定的相鄰法碼。","warn");
+        return;
+      }
+      if(tutorialCompared){
+        // 這一步已量過，不重複增加計數
+        showScaleResult(left,right);
+        return;
+      }
+    }
+
+    comparisonCount++;
+    history.push(`${history.length+1}. 比較 ${left.id} 和 ${right.id} → ${left.weight > right.weight ? left.id : right.id} 較重`);
+
+    if(mode === "tutorial"){
+      tutorialCompared = true;
+      tutorialState = "judge";
+    }
+
+    showScaleResult(left,right);
+    renderStats();
+    renderHistory();
+    renderMode();
+    updateInstruction();
+    updateTutorialGuide();
+  }
+
+  function showScaleResult(left,right){
+    balance.classList.remove("left-heavy","right-heavy");
+
+    window.setTimeout(()=>{
+      if(left.weight > right.weight){
+        balance.classList.add("left-heavy");
+        compareResult.textContent = `${left.id} 比 ${right.id} 重`;
+      }else{
+        balance.classList.add("right-heavy");
+        compareResult.textContent = `${right.id} 比 ${left.id} 重`;
+      }
+
+      if(mode === "tutorial"){
+        tutorialState = "swap";
+        updateInstruction();
+        updateTutorialGuide();
+        renderMode();
+      }
+    },180);
+  }
+
+  function updateScaleUI(){
+    leftLetter.textContent = leftId || "";
+    rightLetter.textContent = rightId || "";
+    leftEmpty.style.display = leftId ? "none" : "";
+    rightEmpty.style.display = rightId ? "none" : "";
+  }
+
+  function clearScale(resetMessage=true){
+    leftId = null;
+    rightId = null;
+    balance.classList.remove("left-heavy","right-heavy");
+    updateScaleUI();
+    if(resetMessage) compareResult.textContent = "等待比較……";
+  }
+
+  function animateBubbleMove(id,fromRect,toRect){
+    if(!(observeMode && mode==="tutorial") || !fromRect || !toRect) return;
+
+    const item=items.find(x=>x.id===id);
+    if(!item) return;
+
+    const bubble=document.createElement("div");
+    bubble.className="bubble-motion";
+    bubble.textContent=`${id} · ${item.weight}g`;
+
+    const sx=fromRect.left+fromRect.width/2;
+    const sy=fromRect.top-22;
+    const ex=toRect.left+toRect.width/2;
+    const ey=toRect.top-52;
+
+    bubble.style.left=`${sx}px`;
+    bubble.style.top=`${sy}px`;
+    document.body.appendChild(bubble);
+
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        bubble.style.left=`${ex}px`;
+        bubble.style.top=`${ey}px`;
+        bubble.classList.add("fly");
+      });
+    });
+
+    window.setTimeout(()=>bubble.remove(),700);
+  }
+
+  function showPassBubbleLock(){
+    if(!(observeMode && mode==="tutorial") || currentPass<=0) return;
+
+    const lockedIndex=total-currentPass;
+    const target=weightsRow.children[lockedIndex];
+    const item=items[lockedIndex];
+    if(!target || !item) return;
+
+    const rowRect=weightsRow.getBoundingClientRect();
+    const targetRect=target.getBoundingClientRect();
+    const label=document.createElement("div");
+    label.className="bubble-lock";
+    label.textContent=`◯ ${item.id}（${item.weight}g）已冒到本輪最右`;
+    label.style.left=`${targetRect.left-rowRect.left+targetRect.width/2}px`;
+    label.style.top="-8px";
+    weightsRow.appendChild(label);
+    window.setTimeout(()=>label.remove(),1250);
+  }
+
+  function attemptSwap(id1,id2){
+    if(completed || id1 === id2) return;
+
+    const i = items.findIndex(x=>x.id===id1);
+    const j = items.findIndex(x=>x.id===id2);
+    if(i<0 || j<0) return;
+
+    if(mode === "tutorial"){
+      const pair = currentPair();
+      const ids = new Set(pair.map(x=>x.id));
+
+      if(!ids.has(id1) || !ids.has(id2)){
+        showMessage("教學模式只可以交換目前正在比較的相鄰法碼。","warn");
+        return;
+      }
+
+      if(!tutorialCompared){
+        showMessage("先把這兩個法碼放上天秤比較，再決定是否交換。","warn");
+        return;
+      }
+
+      // 由輕至重：只有當左方元素較重時才應交換
+      const shouldSwap = pair[0].weight > pair[1].weight;
+      if(!shouldSwap){
+        showMessage("這兩個法碼現在已經是由輕至重，不需要交換。請按「保持次序，下一步」。","warn");
+        return;
+      }
+    }
+
+    const oldRects = captureRects();
+    let bubbleMovingId=null;
+    let bubbleFromRect=null;
+    let bubbleToRect=null;
+
+    if(observeMode && mode==="tutorial"){
+      const leftIndex=Math.min(i,j);
+      const rightIndex=Math.max(i,j);
+      const leftItem=items[leftIndex];
+      const rightItem=items[rightIndex];
+
+      if(leftItem && rightItem && leftItem.weight>rightItem.weight){
+        bubbleMovingId=leftItem.id;
+        bubbleFromRect=oldRects[leftItem.id];
+        bubbleToRect=oldRects[rightItem.id];
+      }
+    }
+
+    [items[i],items[j]] = [items[j],items[i]];
+    swapCount++;
+
+    history.push(`${history.length+1}. 交換 ${id1} 和 ${id2} 的位置`);
+
+    renderWeights();
+    animateFromRects(oldRects);
+    if(bubbleMovingId){
+      animateBubbleMove(bubbleMovingId,bubbleFromRect,bubbleToRect);
+    }
+    renderStats();
+    renderHistory();
+
+    if(mode === "tutorial"){
+      tutorialState = "advance";
+      window.setTimeout(()=>advanceTutorial(),420);
+    }else{
+      showMessage(`已交換 ${id1} 和 ${id2}。你可以繼續比較或重新排列。`);
+    }
+  }
+
+  function captureRects(){
+    const map = {};
+    [...weightsRow.querySelectorAll(".weight")].forEach(el=>{
+      map[el.dataset.id]=el.getBoundingClientRect();
+    });
+    return map;
+  }
+
+  function animateFromRects(oldRects){
+    [...weightsRow.querySelectorAll(".weight")].forEach(el=>{
+      const old = oldRects[el.dataset.id];
+      const now = el.getBoundingClientRect();
+      if(!old) return;
+      const dx = old.left-now.left;
+      const dy = old.top-now.top;
+      if(dx || dy){
+        el.style.transition="none";
+        el.style.transform=`translate(${dx}px,${dy}px)`;
+        requestAnimationFrame(()=>{
+          requestAnimationFrame(()=>{
+            el.style.transition="";
+            el.style.transform="";
+          });
+        });
+      }
+    });
+  }
+
+  function keepTutorialOrder(){
+    if(mode!=="tutorial" || completed) return;
+
+    if(!tutorialCompared){
+      showMessage("先把目前兩個法碼放上天秤比較。","warn");
+      return;
+    }
+
+    const pair = currentPair();
+    const shouldSwap = pair[0].weight > pair[1].weight;
+
+    if(shouldSwap){
+      showMessage(`${pair[0].id} 比 ${pair[1].id} 重；如果要由輕至重，這兩個位置需要交換。`,"warn",true);
+      return;
+    }
+
+    history.push(`${history.length+1}. ${pair[0].id}、${pair[1].id} 次序正確 → 保持不變`);
+    renderHistory();
+    tutorialState = "advance";
+    advanceTutorial();
+  }
+
+  function advanceTutorial(){
+    clearScale();
+
+    const activeEnd = tutorialActiveEnd();
+
+    if(compareIndex < activeEnd-1){
+      compareIndex++;
+      tutorialCompared=false;
+      tutorialState="compare";
+      renderAll();
+      return;
+    }
+
+    currentPass++;
+    compareIndex=0;
+    tutorialCompared=false;
+
+    if(currentPass >= total-1){
+      tutorialState="done";
+      completed=true;
+      renderAll();
+      showPassBubbleLock();
+      showMessage("Bubble Sort 流程完成！現在按「確認排序」揭曉真正重量。","success");
+      return;
+    }
+
+    tutorialState="compare";
+    renderAll();
+    showPassBubbleLock();
+    showMessage(`第 ${currentPass} 輪完成！當輪最重的法碼已經「冒」到右邊。開始第 ${currentPass+1} 輪。`,"success");
+  }
+
+  function renderStats(){
+    compareCountEl.textContent = `比較 ${comparisonCount} 次`;
+    swapCountEl.textContent = `交換 ${swapCount} 次`;
+
+    if(mode==="tutorial"){
+      roundPill.textContent = completed ? "流程完成" : `第 ${currentPass+1} / ${total-1} 輪`;
+      const totalThisPass = Math.max(1,tutorialActiveEnd());
+      stepPill.textContent = completed ? "等待確認" : `比較 ${compareIndex+1} / ${totalThisPass}`;
+    }
+  }
+
+  function renderHistory(){
+    historyList.innerHTML="";
+    if(history.length===0){
+      historyList.innerHTML="<li>尚未有紀錄。</li>";
+      return;
+    }
+    history.forEach(line=>{
+      const li=document.createElement("li");
+      li.textContent=line;
+      historyList.appendChild(li);
+    });
+  }
+
+  function updateInstruction(){
+    if(completed && mode==="tutorial"){
+      showMessage("教學流程已完成。按「確認排序」後才會揭曉真正重量。","success");
+      return;
+    }
+
+    if(mode==="free"){
+      showMessage("每局由 A → B → C → D → E 開始。拖到天秤可比較；拖到另一個法碼上可交換位置。");
+      return;
+    }
+
+    const pair=currentPair();
+    if(pair.length<2) return;
+
+    if(!tutorialCompared){
+      showMessage(`現在：比較相鄰的 ${pair[0].id} 和 ${pair[1].id}。把它們拖到左右天秤。`);
+    }else{
+      const shouldSwap=pair[0].weight > pair[1].weight;
+      if(shouldSwap){
+        showMessage(`觀察天秤後決定：如要由輕至重，請把 ${pair[0].id} 拖到 ${pair[1].id} 上交換位置。`);
+      }else{
+        showMessage(`這一對目前次序是否正確？如不需要交換，可按「保持次序，下一步」。`);
+      }
+    }
+  }
+
+  function updateTutorialGuide(){
+    if(mode!=="tutorial") return;
+
+    let key="compare";
+    if(tutorialState==="judge") key="judge";
+    if(tutorialState==="swap") key="swap";
+    if(tutorialState==="advance" || tutorialState==="done") key="advance";
+
+    tutorialGuide.querySelectorAll(".guide-line").forEach(el=>{
+      el.classList.toggle("active",el.dataset.tstep===key);
+    });
+  }
+
+  function showMessage(text,type="",shake=false){
+    instruction.textContent=text;
+    instruction.classList.remove("success","warn","shake");
+    if(type) instruction.classList.add(type);
+    if(shake){
+      void instruction.offsetWidth;
+      instruction.classList.add("shake");
+    }
+  }
+
+  function clearResult(){
+    resultBox.className="result-box";
+    resultTitle.textContent="";
+    resultText.textContent="";
+    revealRow.innerHTML="";
+    confirmBtn.disabled=false;
+    confirmBtn.textContent="確認排序";
+  }
+
+  function firstUnsortedPairHint(){
+    for(let i=0;i<items.length-1;i++){
+      if(items[i].weight > items[i+1].weight){
+        return `可以先用天秤再檢查 ${items[i].id} 和 ${items[i+1].id}。想一想：由輕至重時，較重的法碼應該放在哪一邊？`;
+      }
+    }
+    return "試試由左至右逐對檢查相鄰法碼；如果左邊較重，就需要交換。";
+  }
+
+  function showCenterResult(success){
+    resultPopCard.classList.remove("success","try-again");
+
+    if(success){
+      resultPopCard.classList.add("success");
+      resultPopIcon.textContent = "🎉";
+      resultPopTitle.textContent = "恭喜同學！";
+      resultPopText.textContent = "你成功把五個法碼由輕至重排好了！";
+      resultPopHint.textContent = `今次共比較 ${comparisonCount} 次、交換 ${swapCount} 次。做得好！`;
+      resultPopClose.textContent = "查看答案";
+    }else{
+      resultPopCard.classList.add("try-again");
+      resultPopIcon.textContent = "💪";
+      resultPopTitle.textContent = "未成功，請繼續！";
+      resultPopText.textContent = "答案仍然保密。再利用天秤找多一點線索，你一定可以再接近正確次序。";
+      resultPopHint.textContent = firstUnsortedPairHint();
+      resultPopClose.textContent = "繼續挑戰";
+    }
+
+    resultPopover.classList.add("show");
+    window.setTimeout(()=>resultPopClose.focus(),80);
+  }
+
+  function closeCenterResult(){
+    resultPopover.classList.remove("show");
+  }
+
+  function confirmOrder(){
+    const correct=isSorted();
+
+    if(correct){
+      revealed=true;
+      completed=true;
+      resultBox.className="result-box show good";
+      resultTitle.textContent="🎉 排序正確！";
+      resultText.textContent=`你成功把五個法碼由輕至重排列。共比較 ${comparisonCount} 次，交換 ${swapCount} 次。`;
+      revealRow.innerHTML=items.map(item=>`
+        <div class="reveal-chip">${item.id}<span>${item.weight}g</span></div>
+      `).join("");
+      confirmBtn.disabled=true;
+      confirmBtn.textContent="答案已揭曉";
+      renderWeights();
+      showMessage("排序正確！真正重量已經揭曉。","success");
+      showCenterResult(true);
+    }else{
+      resultBox.className="result-box show bad";
+      resultTitle.textContent="未完全正確";
+      resultText.textContent="真正重量仍然保密。你可以繼續利用天秤比較，再自由交換法碼位置。";
+      revealRow.innerHTML="";
+      showMessage("未排好，再試一次。系統暫時不會揭曉重量。","warn",true);
+      showCenterResult(false);
+    }
+  }
+
+  observeToggle.addEventListener("change",()=>{
+    observeMode=observeToggle.checked;
+    renderAll();
+
+    if(observeMode){
+      showMessage(
+        mode==="tutorial"
+          ? "👁 觀察模式已開啟：重量已顯示。留意較重法碼在 Bubble Sort 中一步一步向右「冒」。"
+          : "👁 觀察模式已開啟：所有法碼重量現在可見。"
+      );
+    }else{
+      showMessage(
+        mode==="tutorial"
+          ? "觀察模式已關閉：重量再次隱藏，繼續依靠天秤完成 Bubble Sort。"
+          : "觀察模式已關閉：重量再次隱藏。"
+      );
+    }
+  });
+
+  resultPopClose.addEventListener("click",closeCenterResult);
+
+  resultPopover.addEventListener("click",(e)=>{
+    if(e.target===resultPopover) closeCenterResult();
+  });
+
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="Escape" && resultPopover.classList.contains("show")){
+      closeCenterResult();
+    }
+  });
+
+  modeSelect.addEventListener("change",()=>{
+    mode=modeSelect.value;
+    keyboardSelectedId=null;
+    closeCenterResult();
+    newChallenge();
+  });
+
+  restartBtn.addEventListener("click",()=>{ closeCenterResult(); newChallenge(); });
+  clearScaleBtn.addEventListener("click",()=>clearScale());
+  keepNextBtn.addEventListener("click",keepTutorialOrder);
+  confirmBtn.addEventListener("click",confirmOrder);
+
+  mode=modeSelect.value;
+  newChallenge();
+})();
+</script>
+</body>
+</html>
